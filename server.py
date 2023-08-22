@@ -15,18 +15,11 @@ def kill_process_on_port(port):
 
 class Server:
     def __init__(self, host, port):
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        try:
-            kill_process_on_port(port)
-        except:
-            pass
-        self.server.bind((host, port))
-        self.server.listen(5)
-        self.clients = {}
+        ...
+        self.frequencies = {str(i): [] for i in range(1, 10)}
 
-    def broadcast(self, data, source):
-        for client, addr in self.clients.items():
+    def broadcast(self, data, source, frequency):
+        for client in self.frequencies[frequency]:
             if client != source:
                 try:
                     client.send(data)
@@ -34,20 +27,19 @@ class Server:
                     pass
 
     def handle_client(self, client):
-        addr, username = self.clients[client]
-        try:
-            while True:
+        username = client.recv(1024).decode('utf-8')
+        frequency = client.recv(1024).decode('utf-8')
+        
+        self.frequencies[frequency].append(client)
+        
+        while True:
+            try:
                 data = client.recv(1024)
-                if not data:  # client disconnected
+                if not data:
                     break
-                self.broadcast(data, client)
-        except:
-            pass
-        finally:
-            client.close()
-            del self.clients[client]
-            print(f"{username} {addr} disconnected")
-
+                self.broadcast(data, client, frequency)
+            except:
+                pass
 
     def run(self):
             print("Server started...")
