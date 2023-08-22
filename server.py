@@ -49,6 +49,13 @@ class Server:
             return
 
         print(f"{username} connected with {addr}")
+
+        # Validate the frequency
+        if frequency not in self.frequencies:
+            print(f"Invalid frequency received: {frequency}. Disconnecting client.")
+            client.close()
+            return
+
         self.clients[client] = (addr, username)
         self.frequencies[frequency].append(client)
             
@@ -60,6 +67,7 @@ class Server:
                 self.broadcast(data, client, frequency)
             except:
                 pass
+
 
 if __name__ == "__main__":
     server = Server("0.0.0.0", 12345)
