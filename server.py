@@ -24,6 +24,15 @@ class Server:
             except:
                 pass
 
+    def run(self):
+        print("Server started...")
+        while True:
+            client, addr = self.server.accept()
+            print(f"Connected with {addr}")
+            self.clients[client] = addr
+            thread = Thread(target=self.handle_client, args=(client,))
+            thread.start()
+
 if __name__ == "__main__":
     server = Server("0.0.0.0", 12345)
     server.run()
