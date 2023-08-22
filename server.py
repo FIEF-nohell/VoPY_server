@@ -41,8 +41,10 @@ class Server:
 
     def handle_client(self, client, addr):
         try:
-            username = client.recv(1024).decode('utf-8')
             frequency = client.recv(1024).decode('utf-8')
+            print("\nIncoming connection request on frequency: " + str(frequency))
+            username = client.recv(1024).decode('utf-8')
+            print("Incoming connection request from username: " + str(username))
         except UnicodeDecodeError:
             print("Received unexpected data from client. Disconnecting client.")
             client.close()
