@@ -34,9 +34,15 @@ class Server:
                     pass
 
     def handle_client(self, client):
-        username = client.recv(1024).decode('utf-8')
-        frequency = client.recv(1024).decode('utf-8')
-        
+        try:
+            username = client.recv(1024).decode('utf-8')
+            frequency = client.recv(1024).decode('utf-8')
+            print(f"{username} connected with {frequency}")
+        except UnicodeDecodeError:
+            print("Received unexpected data from client. Disconnecting client.")
+            client.close()
+            return
+
         self.frequencies[frequency].append(client)
         
         while True:
@@ -47,6 +53,7 @@ class Server:
                 self.broadcast(data, client, frequency)
             except:
                 pass
+
 
     def run(self):
             print("Server started...")
