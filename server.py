@@ -24,7 +24,6 @@ class Server:
         self.frequencies = {str(i): [] for i in range(1, 10)}
         self.clients = {}  # This dictionary will store client socket objects and their associated address and username.
 
-
     def broadcast(self, data, source, frequency):
         for client in self.frequencies[frequency]:
             if client != source:
@@ -33,18 +32,26 @@ class Server:
                 except:
                     pass
 
-    def handle_client(self, client):
+    def run(self):
+        print("Server started...")
+        while True:
+            client, addr = self.server.accept()
+            thread = Thread(target=self.handle_client, args=(client, addr))
+            thread.start()
+
+    def handle_client(self, client, addr):
         try:
             username = client.recv(1024).decode('utf-8')
             frequency = client.recv(1024).decode('utf-8')
-            print(f"{username} connected with {frequency}")
         except UnicodeDecodeError:
             print("Received unexpected data from client. Disconnecting client.")
             client.close()
             return
 
+        print(f"{username} connected with {addr}")
+        self.clients[client] = (addr, username)
         self.frequencies[frequency].append(client)
-        
+            
         while True:
             try:
                 data = client.recv(1024)
@@ -53,17 +60,6 @@ class Server:
                 self.broadcast(data, client, frequency)
             except:
                 pass
-
-
-    def run(self):
-            print("Server started...")
-            while True:
-                client, addr = self.server.accept()
-                username = client.recv(1024).decode('utf-8')
-                print(f"{username} connected with {addr}")
-                self.clients[client] = (addr, username)
-                thread = Thread(target=self.handle_client, args=(client,))
-                thread.start()
 
 if __name__ == "__main__":
     server = Server("0.0.0.0", 12345)
