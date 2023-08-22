@@ -15,8 +15,15 @@ def kill_process_on_port(port):
 
 class Server:
     def __init__(self, host, port):
-        ...
+        # Initialize the server socket
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # This allows the address/port to be reused immediately instead of it being stuck in the TIME_WAIT state waiting for late packets to arrive.
+        self.server.bind((host, port))
+        self.server.listen(5)  # Allow up to 5 pending connections
+
         self.frequencies = {str(i): [] for i in range(1, 10)}
+        self.clients = {}  # This dictionary will store client socket objects and their associated address and username.
+
 
     def broadcast(self, data, source, frequency):
         for client in self.frequencies[frequency]:
