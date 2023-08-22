@@ -46,7 +46,7 @@ class Server:
         finally:
             client.close()
             del self.clients[client]
-            print(f"{username} ({addr}) disconnected")
+            print(f"{username} {addr} disconnected")
 
 
     def run(self):
